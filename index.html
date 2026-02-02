@@ -1,0 +1,34 @@
+<html lang="en"> <!-- set the language to English (helps screen readers)-->
+<head> <!-- everything inside here is for the browser to read, not for the user to see-->
+    <meta charset="UTF-8"> <!-- sets the character encoding. It ensures special characters (and emojis) display correctly-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Crucial for Mobile. It tells the browser to scale the page to fit the screen width of the device (phone vs. laptop)-->
+    <title>Paisa - Budget Tracker</title> <!-- text that appears on the Browser Tab at the very top-->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>Paisa 💵</h1>
+            <p>Simple Budgeting</p>
+            <button id="reset-btn" style="background: #e74c3c; margin-top: 10px; font-size: 0.8rem;">
+                Reset All
+            </button>
+        </header>
+
+        <div id="dashboard" class="dashboard-grid">
+            </div> <!-- this is the most important part for JavaScript. notice it is empty; We gave it the ID "dashboard". Our JavaScript acts like a painter; it will find this empty wall and "paint" the budget cards (Food, Rent, etc.) inside it dynamically-->
+
+        <div class="input-section">
+            <h3>Add Expense</h3>
+            <div class="form-row">
+                <select id="category-select"></select> <!-- <select>: This creates a Dropdown Menu. why is it empty? Just like the dashboard, our JavaScript will automatically look at our data list ("Food", "Rent") and inject the options here. If we added a new category in JS, this dropdown would update automatically.-->
+                <input type="number" id="amount-input" placeholder="Amount"> <!-- placeholder: The ghost text that disappears when you type-->
+                <button id="add-btn">Track</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script> <!-- This connects the Brain. why at the bottom? We put it at the very end of the body so the HTML (the skeleton) loads first, and then the brain activates. If the brain tries to find the "add button" before the button exists, the app crashes.-->
+</body>
+</html> 

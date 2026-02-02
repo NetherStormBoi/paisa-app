@@ -1,0 +1,83 @@
+body {
+    font-family: sans-serif;
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    padding-top: 50px;
+}
+
+.app-container {
+    width: 400px;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* styling the text at the top*/
+header { text-align: center; margin-bottom: 25px; }
+h1 { color: #2c3e50; margin: 0; }
+p { color: #7f8c8d; margin-top: 5px; }
+
+/* The Cards */
+.dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.card {
+    border: 1px solid #e1e4e8;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+/* The Progress Bar Container */
+.progress-bar {
+    background: #ecf0f1;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden; /* Clips the green bar if it tries to poke out of the rounded corners. */
+}
+
+/* The Moving Green Line */
+.fill {
+    background: #27ae60;
+    height: 100%;
+    width: 0%; /* JS will control this */
+    transition: width 0.3s ease; /* Animation: When width changes, slide smoothly (don't snap instantly). */
+}
+
+/* Input Form */
+.input-section {
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+input, select, button {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+button {
+    background: #27ae60;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
