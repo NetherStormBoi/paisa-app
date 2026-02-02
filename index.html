@@ -10,7 +10,7 @@
     <div class="app-container">
         <header>
             <h1>Paisa 💵</h1>
-            <p>Simple Budgeting</p>
+            <p>Budgeting made Simple</p>
             <button id="reset-btn" style="background: #e74c3c; margin-top: 10px; font-size: 0.8rem;">
                 Reset All
             </button>
@@ -18,6 +18,15 @@
 
         <div id="dashboard" class="dashboard-grid">
             </div> <!-- this is the most important part for JavaScript. notice it is empty; We gave it the ID "dashboard". Our JavaScript acts like a painter; it will find this empty wall and "paint" the budget cards (Food, Rent, etc.) inside it dynamically-->
+
+        <div class="input-section" style="border-top: none; margin-bottom: 20px;">
+            <h3>Create New Envelope</h3>
+            <div class="form-row">
+                <input type="text" id="new-cat-name" placeholder="Name (e.g. Coffee)">
+                <input type="number" id="new-cat-budget" placeholder="Limit ($)">
+                <button id="create-btn" style="background: #2c3e50;">+</button>
+            </div>
+        </div>
 
         <div class="input-section">
             <h3>Add Expense</h3>

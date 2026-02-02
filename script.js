@@ -19,6 +19,9 @@ let budgets = savedData ? JSON.parse(savedData) : [
 ];
 
 // --- 2. THE ELEMENTS (HTML hooks) ---
+const newCatName = document.getElementById("new-cat-name");
+const newCatBudget = document.getElementById("new-cat-budget");
+const createBtn = document.getElementById("create-btn");
 const dashboard = document.getElementById("dashboard");
 const categorySelect = document.getElementById("category-select");
 const addBtn = document.getElementById("add-btn");
@@ -37,6 +40,7 @@ function renderApp() {
         const percentage = (category.spent / category.budget) * 100;
         
         // Create the HTML Card
+        /*
         const card = `
             <div class="card">
                 <div class="card-header">
@@ -48,7 +52,26 @@ function renderApp() {
                 </div>
                 <small>Left: $${remaining}</small>
             </div>
-        `; // (backtick ` (the one on ~ key) enables string interpolation (using ${variable}) and multi-line strings). in this case, we use ${...} to swap the variable category.name with the actual text eg "Food".
+        `; 
+        */
+
+        // (Updated with Delete Button)
+        const card = `
+            <div class="card">
+                <div class="card-header">
+                    <span style="display: flex; align-items: center; gap: 10px;">
+                        ${category.name}
+                        <button onclick="deleteCategory(${category.id})" style="background:none; color:red; border:none; padding:0; font-size:1.2rem; cursor:pointer;">&times;</button>
+                    </span>
+                    <span>$${category.spent} / $${category.budget}</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="fill" style="width: ${percentage}%"></div>
+                </div>
+                <small>Left: $${remaining}</small>
+            </div>
+        `;
+        // (backtick ` (the one on ~ key) enables string interpolation (using ${variable}) and multi-line strings). in this case, we use ${...} to swap the variable category.name with the actual text eg "Food".
         dashboard.innerHTML += card;
 
         // Add option to the dropdown menu
@@ -93,6 +116,38 @@ addBtn.addEventListener("click", () => {
     amountInput.value = "";
 });
 
+
+// --- 6. CREATE NEW BUDGET ---
+createBtn.addEventListener("click", () => {
+    const name = newCatName.value;
+    const limit = Number(newCatBudget.value);
+
+    // Validation
+    if (name === "" || limit <= 0) {
+        alert("Please enter a name and a limit!");
+        return;
+    }
+
+    // Create the New Object
+    const newCategory = {
+        id: Date.now(), // Unique ID based on time
+        name: name,
+        budget: limit,
+        spent: 0
+    };
+
+    // Add to our State
+    budgets.push(newCategory);
+
+    // Save & Render
+    localStorage.setItem("paisaData", JSON.stringify(budgets));
+    renderApp();
+
+    // Clear Inputs
+    newCatName.value = "";
+    newCatBudget.value = "";
+});
+
 // --- 5. RESET DATA (New Month) ---
 const resetBtn = document.getElementById("reset-btn");
 
@@ -115,3 +170,15 @@ resetBtn.addEventListener("click", () => {
     // 4. Re-draw the screen
     renderApp();
 });
+
+// --- 7. DELETE CATEGORY ---
+window.deleteCategory = (id) => {
+    if (confirm("Delete this category permanently?")) {
+        // Filter out the item with the matching ID
+        budgets = budgets.filter(item => item.id !== id);
+        
+        // Save & Render
+        localStorage.setItem("paisaData", JSON.stringify(budgets));
+        renderApp();
+    }
+};
