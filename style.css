@@ -7,7 +7,11 @@ body {
 }
 
 .app-container {
+    /* 
     width: 400px;
+    */
+    width: 100%;           /* Take up available space */
+    max-width: 400px;      /* But stop growing at 400px */
     background: white;
     padding: 25px;
     border-radius: 15px;
@@ -80,4 +84,18 @@ button {
     border: none;
     cursor: pointer;
     font-weight: bold;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 500px) {
+    body {
+        padding-top: 0;      /* Remove top gap on phones */
+        align-items: flex-start;
+    }
+    
+    .app-container {
+        border-radius: 0;    /* Remove corners on mobile */
+        height: 100vh;       /* Full height */
+        box-shadow: none;
+    }
 }
