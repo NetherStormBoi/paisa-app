@@ -33,6 +33,16 @@ function renderApp() {
     dashboard.innerHTML = "";
     categorySelect.innerHTML = "";
 
+    // 2. NEW: Calculate Totals
+    // .reduce(accumulator, currentItem)
+    const totalBudget = budgets.reduce((sum, item) => sum + item.budget, 0); //sum: This is like a calculator's running total. It starts at 0 (the last number in the code). item: This is the current envelope the loop is holding. The Action: It adds the item.budget to the sum and passes it to the next item in the list. By the end of the loop, totalBudget holds the final sum of every single envelope.
+    const totalSpent = budgets.reduce((sum, item) => sum + item.spent, 0);
+    const totalPercent = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
+
+    // 3. NEW: Update the Total Summary UI
+    document.getElementById("total-math").innerText = `$${totalSpent} / $${totalBudget}`;
+    document.getElementById("total-fill").style.width = `${totalPercent}%`;
+
     // B. Loop through data to create cards
     budgets.forEach(category => {
         // Calculate the math
@@ -52,7 +62,7 @@ function renderApp() {
                 </div>
                 <small>Left: $${remaining}</small>
             </div>
-        `; 
+        `;
         */
 
         // (Updated with Delete Button)

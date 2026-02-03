@@ -16,6 +16,16 @@
             </button>
         </header>
 
+        <div id="total-summary" class="card" style="background: #2c3e50; color: white; margin-bottom: 20px; border: none;">
+            <div class="card-header">
+                <span>Total Monthly Budget</span>
+                <span id="total-math">$0 / $0</span>
+            </div>
+            <div class="progress-bar" style="background: rgba(255,255,255,0.2);">
+                <div id="total-fill" class="fill" style="background: #f1c40f; width: 0%;"></div>
+            </div>
+        </div>
+
         <div id="dashboard" class="dashboard-grid">
             </div> <!-- this is the most important part for JavaScript. notice it is empty; We gave it the ID "dashboard". Our JavaScript acts like a painter; it will find this empty wall and "paint" the budget cards (Food, Rent, etc.) inside it dynamically-->
 

@@ -1,21 +1,50 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: sans-serif;
     background-color: #f0f2f5;
-    display: flex;
-    justify-content: center;
-    padding-top: 50px;
+    display: block;
+    /*
+    justify-content: center; */
+
+    padding-top: 50px; /* Space at top and bottom */
+    padding-bottom: 50px;
+
+    /* 2. Keeps it centered horizontally 
+    padding-left: 20px;
+    padding-right: 20px;
+    */
+    margin: 0;
+    min-height: 100vh;  /* Ensure background covers full screen */
 }
 
 .app-container {
     /* 
     width: 400px;
     */
-    width: 100%;           /* Take up available space */
-    max-width: 400px;      /* But stop growing at 400px */
+
+    /* This keeps it centered horizontally now that body isn't flex */
+    margin-left: auto;
+    margin-right: auto;
+    
+    width: 90%;           /* good for small phones */
+    max-width: 400px;      /* But stop growing at 400px, caps it for laptops */
     background: white;
     padding: 25px;
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
+    height: auto;          /* Let it grow with content */
+    overflow: visible;
+    /*
+    min-height: min-content;
+    display: flex; 
+    flex-direction: column;
+
+    margin-bottom: 40px;
+    */
 }
 
 /* styling the text at the top*/
@@ -35,6 +64,8 @@ p { color: #7f8c8d; margin-top: 5px; }
     border: 1px solid #e1e4e8;
     padding: 15px;
     border-radius: 10px;
+    background: #fdfdfd; /* A very slight off-white or transparent */
+    margin-bottom: 10px;
 }
 
 .card-header {
@@ -64,6 +95,8 @@ p { color: #7f8c8d; margin-top: 5px; }
 .input-section {
     border-top: 1px solid #eee;
     padding-top: 20px;
+    margin-top: 20px;      /* Adds a little gap above the expense area */
+    background: white; /* Match the container */
 }
 
 .form-row {
@@ -72,10 +105,29 @@ p { color: #7f8c8d; margin-top: 5px; }
     margin-top: 10px;
 }
 
+/* Make sure the inputs take up the remaining space */
+.form-row input, 
+.form-row select {
+    flex: 1; /* Tells them to grow and fill the row */
+}
+
+/* Specific fix for the Name input so it's wider than the Amount input */
+#new-cat-name {
+    flex: 2; 
+}
+
+/* Keep the buttons from squishing or stretching */
+#create-btn, #add-btn {
+    flex: 0 0 50px; /* Do not grow, do not shrink, stay exactly 50px */
+    padding: 10px 0; /* Adjust padding for better look */
+}
+
 input, select, button {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
+    font-size: 1rem;
+    min-width: 0; /* Important: Allows inputs to shrink below default browser size */
 }
 
 button {
@@ -89,13 +141,21 @@ button {
 /* Mobile Optimizations */
 @media (max-width: 500px) {
     body {
-        padding-top: 0;      /* Remove top gap on phones */
-        align-items: flex-start;
+        padding: 10px;        /* Adds a tiny even gap around the whole app */
+        display: block;      /* Simpler layout for mobile */
+        justify-content: center;
     }
     
     .app-container {
-        border-radius: 0;    /* Remove corners on mobile */
-        height: 100vh;       /* Full height */
-        box-shadow: none;
+        width: 100%;         /* Fill the width */
+        max-width: none;     /* Let it expand on mobile */
+        margin: 0 auto;           /* No side margins */
+        /*
+        padding: 15px; /* Slightly less padding on mobile saves space 
+        */
+        border-radius: 15px; /* Keep the rounded look if you prefer */
+        height: auto;        /* NEVER use 100vh if you want the box to grow */
+        min-height: 100%;    /* Ensures it covers the screen but can grow longer */
+
     }
 }
