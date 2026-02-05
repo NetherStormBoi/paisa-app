@@ -43,6 +43,13 @@ function renderApp() {
     document.getElementById("total-math").innerText = `$${totalSpent} / $${totalBudget}`;
     document.getElementById("total-fill").style.width = `${totalPercent}%`;
 
+    // 2. Change background color based on status
+    if (totalSpent > totalBudget) {
+        document.getElementById("total-summary").style.backgroundColor = "#e74c3c"; // Danger Red
+    } else {
+        document.getElementById("total-summary").style.backgroundColor = "#2c3e50"; // Original Dark Blue/Black
+    }
+
     // B. Loop through data to create cards
     budgets.forEach(category => {
         // Calculate the math
@@ -71,14 +78,15 @@ function renderApp() {
                 <div class="card-header">
                     <span style="display: flex; align-items: center; gap: 10px;">
                         ${category.name}
+                        <button onclick="editBudget('${category.name}')" style="background:none; color:#3498db; padding:0; margin-left:10px; font-size:0.8rem; cursor:pointer;">Edit Limit</button>
                         <button onclick="deleteCategory(${category.id})" style="background:none; color:red; border:none; padding:0; font-size:1.2rem; cursor:pointer;">&times;</button>
                     </span>
                     <span>$${category.spent} / $${category.budget}</span>
                 </div>
-                <div class="progress-bar">
-                    <div class="fill" style="width: ${percentage}%"></div>
+                <div class="progress-bar" style="margin-bottom: 8px;">
+                    ${category.spent > category.budget? `<div class="overfill" style="width: ${percentage}%"></div>` : `<div class="fill" style="width: ${percentage}%"></div>`}
                 </div>
-                <small>Left: $${remaining}</small>
+                <small>${category.spent > category.budget? `Exceeded by $${-1 * remaining}` : `Left: $${remaining}`}</small>
             </div>
         `;
         // (backtick ` (the one on ~ key) enables string interpolation (using ${variable}) and multi-line strings). in this case, we use ${...} to swap the variable category.name with the actual text eg "Food".
@@ -192,3 +200,30 @@ window.deleteCategory = (id) => {
         renderApp();
     }
 };
+
+function editBudget(name) {
+    // 1. Find the category in our data
+    const category = budgets.find(b => b.name === name);
+    
+    if (category) {
+        // 2. Pop up the input window
+        // It shows the current budget as the default value
+        const newLimit = prompt(`Enter new monthly limit for ${name}:`, category.budget);
+
+        // 3. Handle the result
+        // If the user didn't hit 'Cancel' and entered a number
+        if (newLimit !== null && newLimit !== "") {
+            const parsedLimit = parseFloat(newLimit);
+
+            if (!isNaN(parsedLimit) && parsedLimit > 0) {
+                category.budget = parsedLimit;
+
+                // Save & Render:
+                localStorage.setItem("paisaData", JSON.stringify(budgets));
+                renderApp();  // Refresh the UI
+            } else {
+                alert("Please enter a valid number!");
+            }
+        }
+    }
+}

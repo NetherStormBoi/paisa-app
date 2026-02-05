@@ -91,6 +91,13 @@ p { color: #7f8c8d; margin-top: 5px; }
     transition: width 0.3s ease; /* Animation: When width changes, slide smoothly (don't snap instantly). */
 }
 
+.overfill {
+    background: #e74c3c;
+    height: 100%;
+    width: 0%; /* JS will control this */
+    transition: width 0.3s ease; /* Animation: When width changes, slide smoothly (don't snap instantly). */
+}
+
 /* Input Form */
 .input-section {
     border-top: 1px solid #eee;
