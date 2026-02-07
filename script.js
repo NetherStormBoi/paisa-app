@@ -1,22 +1,21 @@
 // --- 1. THE STATE (Our Data) ---
 
-/*
-let budgets = [
-    { id: 1, name: "Food", budget: 500, spent: 0 },
-    { id: 2, name: "Rent", budget: 1000, spent: 0 },
-    { id: 3, name: "Fun", budget: 200, spent: 0 }
-];
-*/
-
 // Try to get data from browser storage
-const savedData = localStorage.getItem("paisaData");
-
-// If saved data exists, parse it. If not, use the default list.
-let budgets = savedData ? JSON.parse(savedData) : [
+// We use 'paisaData' for budgets to keep your existing settings
+let budgets = JSON.parse(localStorage.getItem('paisaData')) || [
     { id: 1, name: "Food", budget: 500, spent: 0 },
     { id: 2, name: "Rent", budget: 1000, spent: 0 },
     { id: 3, name: "Fun", budget: 200, spent: 0 }
 ];
+
+// We use 'paisaExpenses' for the new history log
+let expenses = JSON.parse(localStorage.getItem('paisaExpenses')) || [];
+
+// --- HELPER: Unified Save Function ---
+function saveData() {
+    localStorage.setItem('paisaData', JSON.stringify(budgets));
+    localStorage.setItem('paisaExpenses', JSON.stringify(expenses));
+}
 
 // --- 2. THE ELEMENTS (HTML hooks) ---
 const newCatName = document.getElementById("new-cat-name");
@@ -25,54 +24,38 @@ const createBtn = document.getElementById("create-btn");
 const dashboard = document.getElementById("dashboard");
 const categorySelect = document.getElementById("category-select");
 const addBtn = document.getElementById("add-btn");
-const amountInput = document.getElementById("amount-input");
+const amountInput = document.getElementById("amount-input"); // Defined globally to avoid errors
 
 // --- 3. THE RENDER (The Artist) ---
 function renderApp() {
-    // A. Reset the HTML (Wipe the canvas). We set it to an empty string, because every time we update the data (e.g., spent $5), we are going to redraw everything from scratch. If we didn't wipe it first, we would end up with double lists (Food, Rent, Fun, Food, Rent, Fun...).
+    // A. Reset the HTML (Wipe the canvas)
     dashboard.innerHTML = "";
     categorySelect.innerHTML = "";
 
-    // 2. NEW: Calculate Totals
-    // .reduce(accumulator, currentItem)
-    const totalBudget = budgets.reduce((sum, item) => sum + item.budget, 0); //sum: This is like a calculator's running total. It starts at 0 (the last number in the code). item: This is the current envelope the loop is holding. The Action: It adds the item.budget to the sum and passes it to the next item in the list. By the end of the loop, totalBudget holds the final sum of every single envelope.
+    // B. Calculate Totals
+    const totalBudget = budgets.reduce((sum, item) => sum + item.budget, 0);
     const totalSpent = budgets.reduce((sum, item) => sum + item.spent, 0);
     const totalPercent = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 
-    // 3. NEW: Update the Total Summary UI
+    // C. Update the Total Summary UI
     document.getElementById("total-math").innerText = `$${totalSpent} / $${totalBudget}`;
-    document.getElementById("total-fill").style.width = `${totalPercent}%`;
+    document.getElementById("total-fill").style.width = `${Math.min(totalPercent, 100)}%`;
 
-    // 2. Change background color based on status
+    // Change background color based on status
+    const summaryCard = document.getElementById("total-summary");
     if (totalSpent > totalBudget) {
-        document.getElementById("total-summary").style.backgroundColor = "#e74c3c"; // Danger Red
+        summaryCard.style.backgroundColor = "#e74c3c"; // Danger Red
     } else {
-        document.getElementById("total-summary").style.backgroundColor = "#2c3e50"; // Original Dark Blue/Black
+        summaryCard.style.backgroundColor = "#2c3e50"; // Original Dark Blue/Black
     }
 
-    // B. Loop through data to create cards
+    // D. Loop through data to create cards
     budgets.forEach(category => {
         // Calculate the math
         const remaining = category.budget - category.spent;
         const percentage = (category.spent / category.budget) * 100;
         
         // Create the HTML Card
-        /*
-        const card = `
-            <div class="card">
-                <div class="card-header">
-                    <span>${category.name}</span>
-                    <span>$${category.spent} / $${category.budget}</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="fill" style="width: ${percentage}%"></div>
-                </div>
-                <small>Left: $${remaining}</small>
-            </div>
-        `;
-        */
-
-        // (Updated with Delete Button)
         const card = `
             <div class="card">
                 <div class="card-header">
@@ -84,146 +67,176 @@ function renderApp() {
                     <span>$${category.spent} / $${category.budget}</span>
                 </div>
                 <div class="progress-bar" style="margin-bottom: 8px;">
-                    ${category.spent > category.budget? `<div class="overfill" style="width: ${percentage}%"></div>` : `<div class="fill" style="width: ${percentage}%"></div>`}
+                    ${category.spent > category.budget 
+                        ? `<div class="overfill" style="width: ${Math.min(percentage, 100)}%"></div>` 
+                        : `<div class="fill" style="width: ${percentage}%"></div>`
+                    }
                 </div>
-                <small>${category.spent > category.budget? `Exceeded by $${-1 * remaining}` : `Left: $${remaining}`}</small>
+                <small>${category.spent > category.budget ? `Exceeded by $${Math.abs(remaining)}` : `Left: $${remaining}`}</small>
             </div>
         `;
-        // (backtick ` (the one on ~ key) enables string interpolation (using ${variable}) and multi-line strings). in this case, we use ${...} to swap the variable category.name with the actual text eg "Food".
         dashboard.innerHTML += card;
 
         // Add option to the dropdown menu
-        const option = document.createElement("option"); //Creates a fresh <option></option> tag in memory.
-        option.value = category.id;
+        const option = document.createElement("option");
+        option.value = category.name; // We use Name for the value to make finding it easier
         option.innerText = category.name;
-        categorySelect.appendChild(option); //Physically inserts this option into the <select> dropdown box.
+        categorySelect.appendChild(option);
     });
 }
 
-// Initial draw
-renderApp();
+// --- 4. HISTORY VIEW LOGIC ---
+function showView(view) {
+    const main = document.getElementById('main-view');
+    const history = document.getElementById('history-view');
+    
+    if (view === 'main') {
+        main.style.display = 'block';
+        history.style.display = 'none';
+    } else {
+        main.style.display = 'none';
+        history.style.display = 'block';
+        renderHistory(); 
+    }
+}
 
-// --- 4. THE LOGIC (Handling clicks) ---
+function renderHistory() {
+    const container = document.getElementById('history-list');
+    container.innerHTML = expenses.length === 0 ? '<p style="color:white; text-align:center;">No expenses yet.</p>' : '';
+
+    expenses.forEach(item => {
+        container.innerHTML += `
+            <div class="card" style="margin-bottom: 10px; border-left: 5px solid #27ae60;">
+                <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                    <span>${item.category}</span>
+                    <span>$${item.amount}</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #7f8c8d; margin-top: 5px;">
+                    ${item.date} — <em>"${item.note}"</em>
+                </div>
+            </div>
+        `;
+    });
+}
+
+// --- 5. ADD EXPENSE LOGIC ---
 addBtn.addEventListener("click", () => {
     // A. Get values from the inputs
-    const amount = Number(amountInput.value);
-    const selectedId = Number(categorySelect.value);
+    const amount = parseFloat(amountInput.value);
+    const categoryName = document.getElementById('category-select').value;
 
-    // B. Validation (Don't track empty inputs)
-    if (amount <= 0 || amountInput.value === "") {
+    // B. Validation
+    if (isNaN(amount) || amount <= 0) {
         alert("Please enter a valid amount!");
-        return; // Stop the function here
+        return; 
     }
 
-    // C. Find the correct envelope
-    // We look through the 'budgets' list to find the one matching the ID
-    const category = budgets.find(item => item.id === selectedId);
+    // C. Find the correct envelope by Name
+    const cat = budgets.find(b => b.name === categoryName);
 
-    // D. Update the Data (The State)
-    if (category) {
-        category.spent += amount; 
+    // D. Update the Data
+    if (cat) {
+        const note = prompt("Add a note for this expense (optional):") || "No note";
 
-        // --- NEW LINE: SAVE THE SNAPSHOT ---
-        localStorage.setItem("paisaData", JSON.stringify(budgets));
+        // 1. Update the category total
+        cat.spent += amount;
+
+        // 2. Add to history log
+        const newEntry = {
+            id: Date.now(),
+            category: categoryName,
+            amount: amount,
+            note: note,
+            date: new Date().toLocaleDateString()
+        };
+        expenses.unshift(newEntry); // Add to the TOP of the list
+
+        saveData();
+        renderApp();
+        
+        // Clear the input
+        amountInput.value = "";
+    } else {
+        alert("Please select a category first!");
     }
-
-    // E. Re-draw the screen to show changes
-    renderApp();
-
-    // F. Clear the input box so it's ready for next time
-    amountInput.value = "";
 });
-
 
 // --- 6. CREATE NEW BUDGET ---
 createBtn.addEventListener("click", () => {
     const name = newCatName.value;
     const limit = Number(newCatBudget.value);
 
-    // Validation
     if (name === "" || limit <= 0) {
         alert("Please enter a name and a limit!");
         return;
     }
 
-    // Create the New Object
     const newCategory = {
-        id: Date.now(), // Unique ID based on time
+        id: Date.now(),
         name: name,
         budget: limit,
         spent: 0
     };
 
-    // Add to our State
     budgets.push(newCategory);
-
-    // Save & Render
-    localStorage.setItem("paisaData", JSON.stringify(budgets));
+    saveData();
     renderApp();
 
-    // Clear Inputs
     newCatName.value = "";
     newCatBudget.value = "";
 });
 
-// --- 5. RESET DATA (New Month) ---
-const resetBtn = document.getElementById("reset-btn");
+// --- 7. EDIT & DELETE ACTIONS ---
 
-resetBtn.addEventListener("click", () => {
-    // 1. Confirm with the user (Good UX)
-    if (!confirm("Start a new month? This will erase all spending.")) {
-        return; // Stop if they clicked Cancel
-    }
-
-    // 2. Reset the data in memory
-    budgets = [
-        { id: 1, name: "Food", budget: 500, spent: 0 },
-        { id: 2, name: "Rent", budget: 1000, spent: 0 },
-        { id: 3, name: "Fun", budget: 200, spent: 0 }
-    ];
-
-    // 3. Update the storage to match
-    localStorage.setItem("paisaData", JSON.stringify(budgets));
-
-    // 4. Re-draw the screen
-    renderApp();
-});
-
-// --- 7. DELETE CATEGORY ---
-window.deleteCategory = (id) => {
-    if (confirm("Delete this category permanently?")) {
-        // Filter out the item with the matching ID
-        budgets = budgets.filter(item => item.id !== id);
-        
-        // Save & Render
-        localStorage.setItem("paisaData", JSON.stringify(budgets));
-        renderApp();
-    }
-};
-
-function editBudget(name) {
-    // 1. Find the category in our data
+// Edit Budget Limit
+window.editBudget = (name) => {
     const category = budgets.find(b => b.name === name);
     
     if (category) {
-        // 2. Pop up the input window
-        // It shows the current budget as the default value
         const newLimit = prompt(`Enter new monthly limit for ${name}:`, category.budget);
 
-        // 3. Handle the result
-        // If the user didn't hit 'Cancel' and entered a number
         if (newLimit !== null && newLimit !== "") {
             const parsedLimit = parseFloat(newLimit);
 
             if (!isNaN(parsedLimit) && parsedLimit > 0) {
                 category.budget = parsedLimit;
-
-                // Save & Render:
-                localStorage.setItem("paisaData", JSON.stringify(budgets));
-                renderApp();  // Refresh the UI
+                saveData();
+                renderApp();
             } else {
                 alert("Please enter a valid number!");
             }
         }
     }
 }
+
+// Delete Category
+window.deleteCategory = (id) => {
+    if (confirm("Delete this category permanently?")) {
+        budgets = budgets.filter(item => item.id !== id);
+        saveData();
+        renderApp();
+    }
+};
+
+// Reset All Data (New Month)
+document.getElementById("reset-btn").addEventListener("click", () => {
+    if (!confirm("Start a new month? This will erase all spending.")) {
+        return;
+    }
+
+    // Reset budgets to default (or empty if you prefer)
+    budgets = [
+        { id: 1, name: "Food", budget: 500, spent: 0 },
+        { id: 2, name: "Rent", budget: 1000, spent: 0 },
+        { id: 3, name: "Fun", budget: 200, spent: 0 }
+    ];
+    
+    // Optional: Clear history too? Uncomment next line if you want to clear history on reset
+    expenses = []; 
+
+    saveData();
+    renderApp();
+});
+
+// --- 8. INITIAL START ---
+renderApp();

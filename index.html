@@ -26,6 +26,19 @@
             </div>
         </div>
 
+        <div class="tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button onclick="showView('main')" id="tab-main" class="tab-btn active">Overview</button>
+            <button onclick="showView('history')" id="tab-history" class="tab-btn">History</button>
+        </div>
+
+        <div id="main-view">
+            <div id="dashboard" class="dashboard-grid"></div>
+        </div>
+
+        <div id="history-view" style="display: none;">
+            <div id="history-list"></div>
+        </div>
+
         <div id="dashboard" class="dashboard-grid">
             </div> <!-- this is the most important part for JavaScript. notice it is empty; We gave it the ID "dashboard". Our JavaScript acts like a painter; it will find this empty wall and "paint" the budget cards (Food, Rent, etc.) inside it dynamically-->
 
